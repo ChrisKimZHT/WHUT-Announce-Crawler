@@ -75,7 +75,7 @@ def main():
         with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
             futures = {executor.submit(process_one_page, page_type, page_number) for page_type, page_number in page_list}
 
-            for future in tqdm(as_completed(futures), total=len(page_list)):
+            for future in tqdm(as_completed(futures), total=len(page_list), dynamic_ncols=True):
                 typ, page_result = future.result()
                 result[typ].extend(page_result)
     else:
@@ -91,7 +91,7 @@ def main():
             old_head[typ] = {"head": posts[0]["url"], "status": False}
         print("Old head:", old_head)
 
-        for page_type, page_number in tqdm(page_list):
+        for page_type, page_number in tqdm(page_list, dynamic_ncols=True):
             if old_head[page_type]["status"]:
                 continue
             typ, page_result = process_one_page(page_type, page_number)

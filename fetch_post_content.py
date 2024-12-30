@@ -77,7 +77,7 @@ def main():
     with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
         futures = [executor.submit(get_post_content, *job) for job in job_list]
 
-        for future in tqdm(as_completed(futures), total=len(job_list)):
+        for future in tqdm(as_completed(futures), total=len(job_list), dynamic_ncols=True):
             typ, post = future.result()
             if post == {}:
                 continue
