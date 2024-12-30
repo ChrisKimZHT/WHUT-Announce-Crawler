@@ -94,8 +94,9 @@ def main():
         with open(args.diff_output, "w", encoding="utf-8") as f:
             json.dump(diff_result, f, ensure_ascii=False, indent=2)
 
-        for typ in old_result.keys():
-            result[typ] = diff_result[typ] + old_result[typ]
+        type_list = list(set(old_result.keys()) | set(diff_result.keys()))
+        for typ in type_list:
+            result[typ] = diff_result.get(typ, []) + old_result.get(typ, [])
 
     for typ in type_list:
         print(f"{typ}: {len(result[typ])} posts")
