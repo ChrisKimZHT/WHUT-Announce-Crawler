@@ -50,20 +50,52 @@ def process_one_page(typ: str, page: int) -> tuple[str, list]:
 def main():
     page_list = []
     result = {}
+    diff_result = {}
 
     type_list = args.type_list.split(",")
     for typ in type_list:
         max_page = get_page_count(typ)
         page_list.extend(zip([typ] * max_page, range(max_page)))
         result[typ] = []
+        diff_result[typ] = []
         print(f"{typ}: {max_page} pages")
 
-    with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
-        futures = {executor.submit(process_one_page, page_type, page_number) for page_type, page_number in page_list}
+    if not args.update:
+        # full fetch, using multi-threading
+        with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
+            futures = {executor.submit(process_one_page, page_type, page_number) for page_type, page_number in page_list}
 
-        for future in tqdm(as_completed(futures), total=len(page_list)):
-            typ, page_result = future.result()
-            result[typ].extend(page_result)
+            for future in tqdm(as_completed(futures), total=len(page_list)):
+                typ, page_result = future.result()
+                result[typ].extend(page_result)
+    else:
+        # update fetch, using single-threading
+        if args.diff_input is None:
+            print("Error: input file is required for update fetch")
+            return
+        with open(args.diff_input, "r", encoding="utf-8") as f:
+            old_result = json.load(f)
+
+        old_head = {}
+        for typ, posts in old_result.items():
+            old_head[typ] = {"head": posts[0]["url"], "status": False}
+        print("Old head:", old_head)
+
+        for page_type, page_number in tqdm(page_list):
+            if old_head[page_type]["status"]:
+                continue
+            typ, page_result = process_one_page(page_type, page_number)
+            for post in page_result:
+                if post["url"] == old_head[page_type]["head"]:
+                    old_head[page_type]["status"] = True
+                    break
+                diff_result[typ].append(post)
+
+        with open(args.diff_output, "w", encoding="utf-8") as f:
+            json.dump(diff_result, f, ensure_ascii=False, indent=2)
+
+        for typ in old_result.keys():
+            result[typ] = diff_result[typ] + old_result[typ]
 
     for typ in type_list:
         print(f"{typ}: {len(result[typ])} posts")
@@ -78,5 +110,8 @@ if __name__ == "__main__":
     parser.add_argument("--type-list", type=str, default="xxtg,xytg,bmxw,lgjz")
     parser.add_argument("--concurrency", type=int, default=32)
     parser.add_argument("--output", type=str, default="./post_list.json")
+    parser.add_argument("--diff-input", type=str, default="./post_list.json")
+    parser.add_argument("--diff-output", type=str, default="./post_list.diff.json")
+    parser.add_argument("--update", action="store_true")
     args = parser.parse_args()
     main()
