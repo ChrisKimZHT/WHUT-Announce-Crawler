@@ -65,12 +65,16 @@ def main():
     type_list = args.type_list.split(",")
     for typ in type_list:
         max_page = get_page_count(typ)
-        page_list.extend(zip([typ] * max_page, range(max_page)))
+        page_list.extend(zip([typ] * max_page, range(1, max_page)))
         result[typ] = []
         diff_result[typ] = []
         print(f"{typ}: {max_page} pages")
 
     if not args.update:
+        # important: ensure 0 page is in the front, otherwise the update fetch will be incorrect
+        for typ in type_list:
+            result[typ].extend(process_one_page(typ, 0)[1])
+
         # full fetch, using multi-threading
         with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
             futures = {executor.submit(process_one_page, page_type, page_number) for page_type, page_number in page_list}
