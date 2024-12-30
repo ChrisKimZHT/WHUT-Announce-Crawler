@@ -14,7 +14,7 @@ from tqdm import tqdm
 def get_post_content(typ: str, url: str) -> tuple[str, dict]:
     for retry in range(3):
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=3)
             response.encoding = "utf-8"
             break
         except Exception as e:

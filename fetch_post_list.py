@@ -1,6 +1,7 @@
 import argparse
 import json
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin
 
@@ -29,10 +30,19 @@ def process_one_page(typ: str, page: int) -> tuple[str, list]:
     if page > 0:
         url += f"/index_{page}.shtml"
 
-    try:
-        response = requests.get(url)
-        response.encoding = "utf-8"
+    for retry in range(3):
+        try:
+            response = requests.get(url, timeout=3)
+            response.encoding = "utf-8"
+            break
+        except Exception as e:
+            print(f"Error fetch post list {url}, retry {retry}: {e}")
+            time.sleep(2)
+    else:
+        print(f"Error fetch post list {url}: retry 3 times failed")
+        return typ, []
 
+    try:
         html = response.text
         soup = BeautifulSoup(html, "html.parser")
 
