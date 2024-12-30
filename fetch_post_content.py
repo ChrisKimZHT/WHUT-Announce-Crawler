@@ -19,11 +19,18 @@ def get_post_content(typ: str, url: str) -> tuple[str, dict]:
         except Exception as e:
             print(f"Error fetch post {url}, retry {retry}: {e}")
             time.sleep(2)
+    else:
+        print(f"Error fetch post {url}: retry 3 times failed")
+        return typ, {}
+
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+
+    if "<title>欢迎访问武汉理工大学综合信息系统</title>" not in html:
+        print(f"Error fetch post {url}: not a post page")
+        return typ, {}
 
     try:
-        html = response.text
-        soup = BeautifulSoup(html, "html.parser")
-
         title = soup.find("div", class_="art_tit").find("h2").text
 
         author_and_date = soup.find("div", class_="art_info").text  # 发布：能动学院综合办\xa0\xa0时间：2021-04-13\xa0\xa0我要纠错
