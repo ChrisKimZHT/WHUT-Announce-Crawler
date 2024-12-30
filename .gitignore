@@ -1,4 +1,6 @@
 *.json
+data/file/*
+!data/file/.gitkeep
 
 ### Python template
 # Byte-compiled / optimized / DLL files
