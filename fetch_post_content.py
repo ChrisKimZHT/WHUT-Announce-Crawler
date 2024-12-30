@@ -3,6 +3,7 @@ import json
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from copy import deepcopy
 from urllib.parse import urljoin
 
 import requests
@@ -82,6 +83,20 @@ def main():
                 continue
             result[typ].append(post)
 
+    if args.update:
+        diff_result = deepcopy(result)
+        result = {}
+
+        with open(args.diff_input, "r", encoding="utf-8") as f:
+            old_result = json.load(f)
+
+        type_list = list(set(old_result.keys()) | set(diff_result.keys()))
+        for typ in type_list:
+            result[typ] = diff_result.get(typ, []) + old_result.get(typ, [])
+
+        with open(args.diff_output, "w", encoding="utf-8") as f:
+            json.dump(diff_result, f, ensure_ascii=False, indent=2)
+
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
@@ -92,5 +107,8 @@ if __name__ == "__main__":
     parser.add_argument("--concurrency", type=int, default=32)
     parser.add_argument("--input", type=str, default="./post_list.json")
     parser.add_argument("--output", type=str, default="./post_content.json")
+    parser.add_argument("--diff-input", type=str, default="./post_content.json")
+    parser.add_argument("--diff-output", type=str, default="./post_content.diff.json")
+    parser.add_argument("--update", action="store_true")
     args = parser.parse_args()
     main()
