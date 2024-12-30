@@ -60,6 +60,24 @@ def fetch_post_content(is_update: bool):
     os.system(" ".join(command))
 
 
+def fetch_post_file(is_update: bool):
+    if is_update:
+        command = [
+            "python", "fetch_post_file.py",
+            "--base-url", args.base_url,
+            "--input", POST_CONTENT_DIFF,
+            "--concurrency", str(args.concurrency)
+        ]
+    else:
+        command = [
+            "python", "fetch_post_file.py",
+            "--base-url", args.base_url,
+            "--input", POST_CONTENT,
+            "--concurrency", str(args.concurrency)
+        ]
+    os.system(" ".join(command))
+
+
 def main():
     if args.force_refetch:
         input(f"This will delete all json in {DATA_DIR}, press Enter to continue")
@@ -74,6 +92,8 @@ def main():
 
     fetch_post_list(is_update)
     fetch_post_content(is_update)
+    if not args.skip_file:
+        fetch_post_file(is_update)
 
 
 if __name__ == "__main__":
@@ -83,5 +103,6 @@ if __name__ == "__main__":
     parser.add_argument("--concurrency", type=int, default=32)
     parser.add_argument("--force-refetch", action="store_true")
     parser.add_argument("--timeout", type=int, default=5)
+    parser.add_argument("--skip-file", action="store_true")
     args = parser.parse_args()
     main()
