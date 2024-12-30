@@ -20,7 +20,8 @@ def fetch_post_list(is_update: bool):
             "--output", POST_LIST,
             "--base-url", args.base_url,
             "--type-list", args.type_list,
-            "--concurrency", str(args.concurrency)
+            "--concurrency", str(args.concurrency),
+            "--timeout", str(args.timeout)
         ]
     else:
         command = [
@@ -28,7 +29,8 @@ def fetch_post_list(is_update: bool):
             "--output", POST_LIST,
             "--base-url", args.base_url,
             "--type-list", args.type_list,
-            "--concurrency", str(args.concurrency)
+            "--concurrency", str(args.concurrency),
+            "--timeout", str(args.timeout)
         ]
     os.system(" ".join(command))
 
@@ -43,7 +45,8 @@ def fetch_post_content(is_update: bool):
             "--diff-input", POST_CONTENT,
             "--diff-output", POST_CONTENT_DIFF,
             "--base-url", args.base_url,
-            "--concurrency", str(args.concurrency)
+            "--concurrency", str(args.concurrency),
+            "--timeout", str(args.timeout)
         ]
     else:
         command = [
@@ -51,7 +54,8 @@ def fetch_post_content(is_update: bool):
             "--input", POST_LIST,
             "--output", POST_CONTENT,
             "--base-url", args.base_url,
-            "--concurrency", str(args.concurrency)
+            "--concurrency", str(args.concurrency),
+            "--timeout", str(args.timeout)
         ]
     os.system(" ".join(command))
 
@@ -78,5 +82,6 @@ if __name__ == "__main__":
     parser.add_argument("--type-list", type=str, default="xxtg,xytg,bmxw,lgjz")
     parser.add_argument("--concurrency", type=int, default=32)
     parser.add_argument("--force-refetch", action="store_true")
+    parser.add_argument("--timeout", type=int, default=5)
     args = parser.parse_args()
     main()

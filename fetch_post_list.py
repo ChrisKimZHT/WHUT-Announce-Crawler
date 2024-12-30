@@ -32,7 +32,7 @@ def process_one_page(typ: str, page: int) -> tuple[str, list]:
 
     for retry in range(3):
         try:
-            response = requests.get(url, timeout=3)
+            response = requests.get(url, timeout=args.timeout)
             response.encoding = "utf-8"
             break
         except Exception as e:
@@ -120,6 +120,7 @@ if __name__ == "__main__":
     parser.add_argument("--base-url", type=str, default="http://i.whut.edu.cn")
     parser.add_argument("--type-list", type=str, default="xxtg,xytg,bmxw,lgjz")
     parser.add_argument("--concurrency", type=int, default=32)
+    parser.add_argument("--timeout", type=int, default=5)
     parser.add_argument("--output", type=str, default="./post_list.json")
     parser.add_argument("--diff-input", type=str, default="./post_list.json")
     parser.add_argument("--diff-output", type=str, default="./post_list.diff.json")
