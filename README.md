@@ -32,6 +32,7 @@
 | `--concurrency`   | `int`        | `32`                   | 爬取线程数，别把学校爬炸了 |
 | `--force-refetch` | `store_true` | 否                     | 强制重新爬取               |
 | `--timeout`       | `int`        | `5`                    | 请求超时时间               |
+| `--skip-file`     | `store_true` | 否                     | 跳过文件下载               |
 
 ## 手动运行
 
@@ -62,3 +63,12 @@
 | `--diff-input`  | `str`  | `./post_content.json`      | 差量更新输入的**旧公告内容**路径   |
 | `--diff-output` | `str`  | `./post_content.diff.json` | 差量更新输出的**差异公告内容**路径 |
 | `--update`      | `bool` | 否                         | 差量更新模式                       |
+
+`fetch_post_file.py` 用于获取公告附件，可用参数：
+
+| 参数            | 类型  | 默认值                 | 说明                           |
+| --------------- | ----- | ---------------------- | ------------------------------ |
+| `--base-url`    | `str` | `http://i.whut.edu.cn` | 基础链接                       |
+| `--concurrency` | `int` | `32`                   | 爬取线程数，别把学校爬炸了     |
+| `--input`       | `str` | `./post_content.json`  | 输入的**要爬取的公告内容**路径 |
+| `--output`      | `str` | `./data/file`          | 输出的**公告附件**路径         |
